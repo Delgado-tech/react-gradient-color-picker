@@ -1,15 +1,16 @@
 import { formatInputValues } from './formatters.js'
 import { ColorsProps } from '../shared/types.js'
 
-export const safeBounds = (e: any) => {
-  const client = e.target.parentNode.getBoundingClientRect()
-  const className = e.target.className
+export const safeBounds = (e: MouseEvent | TouchEvent) => {
+  const target = e.target as HTMLElement
+  const client = target.parentElement?.getBoundingClientRect()
+  const className = target.className
   const adjuster = className === 'c-resize ps-rl' ? 15 : 0
   return {
-    offsetLeft: client?.x + adjuster,
-    offsetTop: client?.y,
-    clientWidth: client?.width,
-    clientHeight: client?.height,
+    offsetLeft: client?.x ?? 0 + adjuster,
+    offsetTop: client?.y ?? 0,
+    clientWidth: client?.width ?? 0,
+    clientHeight: client?.height ?? 0,
   }
 }
 
@@ -33,28 +34,34 @@ export function computeSquareXY(
   return [x, y]
 }
 
-const getClientXY = (e: any) => {
-  if (e.clientX) {
+const getClientXY = (e: MouseEvent | TouchEvent) => {
+  if ('clientX' in e) {
     return { clientX: e.clientX, clientY: e.clientY }
   } else {
-    const touch = e.touches[0] || {}
-    return { clientX: touch.clientX, clientY: touch.clientY }
+    const touch = e.touches[0]
+    if (touch) {
+      return { clientX: touch.clientX, clientY: touch.clientY }
+    }
+    return { clientX: 0, clientY: 0 }
   }
 }
 
-export function computePickerPosition(e: any, crossSize: number) {
+export function computePickerPosition(
+  e: MouseEvent | TouchEvent,
+  crossSize: number
+) {
   const { offsetLeft, offsetTop, clientWidth, clientHeight } = safeBounds(e)
   const { clientX, clientY } = getClientXY(e)
 
-  const getX = () => {
-    const xPos = clientX - offsetLeft - crossSize / 2
-    return formatInputValues(xPos, -9, clientWidth - 10)
-  }
-  const getY = () => {
-    const yPos = clientY - offsetTop - crossSize / 2
-    return formatInputValues(yPos, -9, clientHeight - 10)
-  }
-
+  // const getX = () => {
+  //   const xPos = clientX - offsetLeft - crossSize / 2
+  //   return formatInputValues(xPos, -9, clientWidth - 10)
+  // }
+  // const getY = () => {
+  //   const yPos = clientY - offsetTop - crossSize / 2
+  //   return formatInputValues(yPos, -9, clientHeight - 10)
+  // }
+  return [clientX, clientY]
   return [getX(), getY()]
 }
 
@@ -150,10 +157,5 @@ export const getDetails = (value: string) => {
   const degreeStr =
     gradientType === 'linear-gradient' ? `${degrees}deg` : 'circle'
 
-  return {
-    degrees,
-    degreeStr,
-    isGradient,
-    gradientType,
-  }
+  return { degrees, degreeStr, isGradient, gradientType }
 }

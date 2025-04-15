@@ -35,7 +35,10 @@ export default function PickerContextWrapper({
 
   const colors = getColors(value, config.defaultColor, config.defaultGradient)
   const { degrees, degreeStr, isGradient, gradientType } = getDetails(value)
-  const { currentColor, selectedColor, currentLeft } = getColorObj(colors, config.defaultGradient)
+  const { currentColor, selectedColor, currentLeft } = getColorObj(
+    colors,
+    config.defaultGradient
+  )
   const [inputType, setInputType] = useState('rgb')
   const [previous, setPrevious] = useState({})
   const tinyColor = tinycolor(currentColor)
@@ -180,10 +183,7 @@ export type PickerContextProps = {
   handleGradient: (arg0: string, arg1?: number) => void
   createGradientStr: (arg0: GradientProps[]) => void
   defaultStyles: Styles
-  previous: {
-    color?: string
-    gradient?: string
-  }
+  previous: { color?: string; gradient?: string }
   isDarkMode: boolean
   pickerIdSuffix: string
   showHexAlpha: boolean
