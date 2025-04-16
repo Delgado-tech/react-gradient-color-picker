@@ -57,7 +57,10 @@ export function ColorPicker({
     <div
       // ref={contRef}
       className={className}
-      style={{ ...defaultStyles.body, width: width }}
+      style={{
+        ...defaultStyles.body,
+        width: width,
+      }}
     >
       <PickerContextWrapper
         value={safeValue}

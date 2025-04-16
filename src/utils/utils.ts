@@ -1,8 +1,8 @@
 import { formatInputValues } from './formatters.js'
 import { ColorsProps } from '../shared/types.js'
 
-export const safeBounds = (e: MouseEvent | TouchEvent) => {
-  const target = e.target as HTMLElement
+export const safeBounds = (e: any) => {
+  const target = e as HTMLElement
   const client = target.parentElement?.getBoundingClientRect()
   const className = target.className
   const adjuster = className === 'c-resize ps-rl' ? 15 : 0
@@ -14,9 +14,9 @@ export const safeBounds = (e: MouseEvent | TouchEvent) => {
   }
 }
 
-export function getHandleValue(e: any, barSize: number) {
-  const { offsetLeft, clientWidth } = safeBounds(e)
-  const pos = e.clientX - offsetLeft - barSize / 2
+export function getHandleValue(x: number, target: any, barSize: number) {
+  const { offsetLeft, clientWidth } = safeBounds(target)
+  const pos = x - offsetLeft - barSize / 2
   const adjuster = clientWidth - 18
   const bounded = formatInputValues(pos, 0, adjuster)
   return Math.round(bounded / (adjuster / 100))
@@ -48,20 +48,22 @@ const getClientXY = (e: MouseEvent | TouchEvent) => {
 
 export function computePickerPosition(
   e: MouseEvent | TouchEvent,
+  target: any,
   crossSize: number
 ) {
-  const { offsetLeft, offsetTop, clientWidth, clientHeight } = safeBounds(e)
+  const { offsetLeft, offsetTop, clientWidth, clientHeight } =
+    safeBounds(target)
   const { clientX, clientY } = getClientXY(e)
 
-  // const getX = () => {
-  //   const xPos = clientX - offsetLeft - crossSize / 2
-  //   return formatInputValues(xPos, -9, clientWidth - 10)
-  // }
-  // const getY = () => {
-  //   const yPos = clientY - offsetTop - crossSize / 2
-  //   return formatInputValues(yPos, -9, clientHeight - 10)
-  // }
-  return [clientX, clientY]
+  const getX = () => {
+    const xPos = clientX - offsetLeft - crossSize / 2
+    return formatInputValues(xPos, -8, clientWidth - 8)
+  }
+  const getY = () => {
+    const yPos = clientY - offsetTop - crossSize / 2
+    return formatInputValues(yPos, -8, clientHeight - 8)
+  }
+
   return [getX(), getY()]
 }
 

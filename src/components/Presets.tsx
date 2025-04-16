@@ -3,6 +3,7 @@
 import React from 'react'
 import { usePicker } from '../context.js'
 import { fakePresets } from '../constants.js'
+import tinycolor from 'tinycolor2'
 
 const Presets = ({ presets = [] }: { presets?: string[] }) => {
   const {
@@ -32,11 +33,13 @@ const Presets = ({ presets = [] }: { presets?: string[] }) => {
 
   const getBorder = (p: string) => {
     if (!p || isDarkMode) return ''
-    const c = p?.replace(' ', '');
-    if (c === 'rgba(255,255,255,1)') {
+    const tc = new tinycolor(p)
+    const { r, g, b, a } = tc.toRgb()
+
+    if ((r > 230 && g > 230 && b > 230) || a < 0.15) {
       return '1px solid #96959c'
     }
-    return ''
+    return '1px solid white'
   }
 
   return (

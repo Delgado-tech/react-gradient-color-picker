@@ -6,10 +6,13 @@ import tinycolor from 'tinycolor2'
 
 const Hue = () => {
   const barRef = useRef<HTMLCanvasElement>(null)
-  const { config, handleChange, squareWidth, hc, setHc, pickerIdSuffix } = usePicker()
+  const { config, handleChange, squareWidth, hc, setHc, pickerIdSuffix } =
+    usePicker()
   const [dragging, setDragging] = useState(false)
   const { barSize } = config
   usePaintHue(barRef, squareWidth)
+
+  const hueRef = useRef<HTMLDivElement>(null)
 
   const stopDragging = () => {
     setDragging(false)
@@ -19,23 +22,25 @@ const Hue = () => {
     setDragging(true)
   }
 
-  const handleHue = (e: any) => {
-    const newHue = getHandleValue(e, barSize) * 3.6
-    const tinyHsv = tinycolor({ h: newHue, s: hc?.s, v: hc?.v })
-    const { r, g, b } = tinyHsv.toRgb()
-    handleChange(`rgba(${r}, ${g}, ${b}, ${hc.a})`)
-    setHc({ ...hc, h: newHue })
+  const handleHue = (x: number) => {
+    if (hueRef.current) {
+      const newHue = getHandleValue(x, hueRef.current, barSize) * 3.6
+      const tinyHsv = tinycolor({ h: newHue, s: hc?.s, v: hc?.v })
+      const { r, g, b } = tinyHsv.toRgb()
+      handleChange(`rgba(${r}, ${g}, ${b}, ${hc.a})`)
+      setHc({ ...hc, h: newHue })
+    }
   }
 
   const handleMove = (e: any) => {
     if (dragging) {
-      handleHue(e)
+      handleHue(e.clientX)
     }
   }
 
   const handleClick = (e: any) => {
     if (!dragging) {
-      handleHue(e)
+      handleHue(e.clientX)
     }
   }
 
@@ -45,11 +50,13 @@ const Hue = () => {
     }
 
     window.addEventListener('mouseup', handleUp)
+    window.addEventListener('mousemove', handleMove)
 
     return () => {
       window.removeEventListener('mouseup', handleUp)
+      window.removeEventListener('mousemove', handleMove)
     }
-  }, [])
+  }, [dragging])
 
   return (
     <div
@@ -60,7 +67,8 @@ const Hue = () => {
         cursor: 'ew-resize',
         position: 'relative',
       }}
-      onMouseMove={(e) => handleMove(e)}
+      ref={hueRef}
+      onMouseDown={handleDown}
       id={`rbgcp-hue-wrap${pickerIdSuffix}`}
       // className="rbgcp-hue-wrap"
     >
@@ -82,7 +90,6 @@ const Hue = () => {
           cursor: 'ew-resize',
           boxSizing: 'border-box',
         }}
-        onMouseDown={handleDown}
         id={`rbgcp-hue-handle${pickerIdSuffix}`}
       />
       <canvas

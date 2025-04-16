@@ -2,7 +2,6 @@ import { computePickerPosition, computeSquareXY } from '../utils/utils.js'
 import React, { useRef, useState, useEffect } from 'react'
 import usePaintSquare from '../hooks/usePaintSquare.js'
 import { usePicker } from '../context.js'
-import throttle from 'lodash.throttle'
 import tinycolor from 'tinycolor2'
 
 const Square = () => {
@@ -26,20 +25,15 @@ const Square = () => {
     crossSize
   )
   const [dragPos, setDragPos] = useState({ x, y })
+  const squareRef = useRef<HTMLDivElement>(null)
 
   usePaintSquare(canvas, hc?.h, squareWidth, squareHeight)
 
   useEffect(() => {
     if (!dragging) {
-      // Somente atualize dragPos se for necessário
-      setDragPos((prev) => {
-        if (prev.x !== x || prev.y !== y) {
-          return { x: hc?.v === 0 ? prev.x : x, y }
-        }
-        return prev
-      })
+      setDragPos({ x: hc?.v === 0 ? dragPos.x : x, y })
     }
-  }, [])
+  }, [x, y])
 
   useEffect(() => {
     const handleUp = () => {
@@ -63,25 +57,22 @@ const Square = () => {
 
   const handleColor = () => {
     const { x, y } = dragPos
+
     if (x && y) {
-      const x1 = Math.min(x + crossSize / 2, squareWidth - 1)
-      const y1 = Math.min(y + crossSize / 2, squareHeight - 1)
+      const x1 = Math.min(x + crossSize / 2.2, squareWidth)
+      const y1 = Math.min(y + crossSize / 2.2, squareHeight)
       const newS = (x1 / squareWidth) * 100
       const newY = 100 - (y1 / squareHeight) * 100
-      // setDragPos((prev) => {
-      //   if (prev.x !== newY) {
-      //     return { x: newY === 0 ? prev.x : x, y }
-      //   }
-      //   return prev
-      // })
       const updated = tinycolor(`hsva(${hc?.h}, ${newS}%, ${newY}%, ${hc?.a})`)
       handleChange(updated.toRgbString())
     }
   }
 
   const setComputedDragPos = (e: any) => {
-    const [x, y] = computePickerPosition(e, crossSize)
-    setDragPos({ x, y })
+    if (squareRef.current) {
+      const [x, y] = computePickerPosition(e, squareRef.current, crossSize)
+      setDragPos({ x, y })
+    }
   }
 
   const stopDragging = () => {
@@ -120,6 +111,7 @@ const Square = () => {
         onMouseDown={handleCanvasDown}
         onTouchStart={handleCanvasDown}
         id={`rbgcp-square${pickerIdSuffix}`}
+        ref={squareRef}
         style={{ position: 'relative', cursor: 'ew-cross' }}
       >
         <div

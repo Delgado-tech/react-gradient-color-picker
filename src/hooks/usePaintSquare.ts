@@ -1,7 +1,7 @@
 import { useEffect, RefObject } from 'react'
 
 const usePaintSquare = (
-  canvas: RefObject<HTMLCanvasElement>,
+  canvas: RefObject<HTMLCanvasElement | null>,
   hue: number,
   squareWidth: number,
   squareHeight: number

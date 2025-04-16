@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { usePicker } from '../context.js'
 import { getHandleValue } from '../utils/utils.js'
 
@@ -17,6 +17,8 @@ const Opacity = () => {
   const bg = `linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(${r},${g},${b},.5) 100%)`
   const { barSize } = config
 
+  const opacityRef = useRef<HTMLDivElement>(null)
+
   const stopDragging = () => {
     setDragging(false)
   }
@@ -25,21 +27,24 @@ const Opacity = () => {
     setDragging(true)
   }
 
-  const handleOpacity = (e: any) => {
-    const newO = getHandleValue(e, barSize) / 100
-    const newColor = `rgba(${r}, ${g}, ${b}, ${newO})`
-    handleChange(newColor)
+  const handleOpacity = (x: number) => {
+    if (opacityRef.current) {
+      const newO = getHandleValue(x, opacityRef.current, barSize) / 100
+      console.log(newO)
+      const newColor = `rgba(${r}, ${g}, ${b}, ${newO})`
+      handleChange(newColor)
+    }
   }
 
   const handleMove = (e: any) => {
     if (dragging) {
-      handleOpacity(e)
+      handleOpacity(e.clientX)
     }
   }
 
   const handleClick = (e: any) => {
     if (!dragging) {
-      handleOpacity(e)
+      handleOpacity(e.clientX)
     }
   }
 
@@ -51,16 +56,17 @@ const Opacity = () => {
     }
 
     window.addEventListener('mouseup', handleUp)
+    window.addEventListener('mousemove', handleMove)
 
     return () => {
       window.removeEventListener('mouseup', handleUp)
+      window.removeEventListener('mousemove', handleMove)
     }
-  }, [])
+  }, [dragging])
 
   return (
     <div
       onMouseDown={handleDown}
-      onMouseMove={(e) => handleMove(e)}
       style={{
         height: 14,
         marginTop: 17,
@@ -82,6 +88,7 @@ const Opacity = () => {
         style={{ ...defaultStyles.rbgcpHandle, left: left * hc?.a, top: -2 }}
       />
       <div
+        ref={opacityRef}
         style={{ ...defaultStyles.rbgcpOpacityOverlay, background: bg }}
         id={`rbgcp-opacity-overlay${pickerIdSuffix}`}
         // className="rbgcp-opacity-overlay"

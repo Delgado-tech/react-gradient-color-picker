@@ -35,6 +35,8 @@ const AdvBar = ({
   const [handleTop, setHandleTop] = useState<number>(2)
   const left = value * (squareWidth - 18)
 
+  const barRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     setHandleTop(reffy?.current?.offsetTop - 2)
   }, [openAdvanced, reffy])
@@ -43,15 +45,19 @@ const AdvBar = ({
     setDragging(false)
   }
 
+  const handleCallback = (x: number) => {
+    callback(getHandleValue(x, barRef.current, barSize))
+  }
+
   const handleMove = (e: any) => {
     if (dragging) {
-      callback(getHandleValue(e, barSize))
+      handleCallback(e.clientX)
     }
   }
 
   const handleClick = (e: any) => {
     if (!dragging) {
-      callback(getHandleValue(e, barSize))
+      handleCallback(e.clientX)
     }
   }
 
@@ -65,16 +71,18 @@ const AdvBar = ({
     }
 
     window.addEventListener('mouseup', handleUp)
+    window.addEventListener('mousemove', handleMove)
 
     return () => {
       window.removeEventListener('mouseup', handleUp)
+      window.removeEventListener('mousemove', handleMove)
     }
-  }, [])
+  }, [dragging])
 
   return (
     <div style={{ width: '100%', padding: '3px 0px 3px 0px' }}>
       <div
-        onMouseMove={(e) => handleMove(e)}
+        ref={barRef}
         // className="rbgcp-advanced-bar-wrap"
         style={{ cursor: 'resize', position: 'relative' }}
         id={`rbgcp-advanced-bar-${label}-wrapper${pickerIdSuffix}`}
@@ -128,7 +136,15 @@ const AdvBar = ({
 }
 
 const AdvancedControls = ({ openAdvanced }: { openAdvanced: boolean }) => {
-  const { config, tinyColor, handleChange, squareWidth, hc, defaultStyles, pickerIdSuffix } = usePicker()
+  const {
+    config,
+    tinyColor,
+    handleChange,
+    squareWidth,
+    hc,
+    defaultStyles,
+    pickerIdSuffix,
+  } = usePicker()
   const { s, l } = tinyColor.toHsl()
 
   const satRef = useRef(null)

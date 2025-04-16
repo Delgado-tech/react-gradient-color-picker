@@ -1,7 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable react/jsx-no-leaked-render */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { getHandleValue } from '../utils/utils.js'
 import { usePicker } from '../context.js'
 import { low, high } from '../utils/formatters.js'
@@ -105,6 +105,7 @@ const GradientBar = () => {
   } = usePicker()
   const { barSize } = config
   const [dragging, setDragging] = useState(false)
+  const barRef = useRef<HTMLDivElement>(null)
   // const [inFocus, setInFocus] = useState<string | null>(null)
 
   function force90degLinear(color: string) {
@@ -114,8 +115,9 @@ const GradientBar = () => {
     )
   }
 
-  const addPoint = (e: any) => {
-    const left = getHandleValue(e, barSize)
+  const addPoint = (x: number) => {
+    if (!barRef.current) return
+    const left = getHandleValue(x, barRef.current, barSize)
     const newColors = [
       ...colors.map((c: any) => ({ ...c, value: low(c) })),
       { value: currentColor, left: left },
@@ -123,36 +125,24 @@ const GradientBar = () => {
     createGradientStr(newColors)
   }
 
-  // useEffect(() => {
-  //   const selectedEl = window?.document?.getElementById(
-  //     `gradient-handle-${selectedColor}`
-  //   )
-  //   if (selectedEl) selectedEl.focus()
-  // }, [selectedColor])
-
   const stopDragging = () => {
     setDragging(false)
   }
 
   const handleDown = (e: any) => {
-    if (dragging) return;
-    addPoint(e)
+    if (dragging) return
+    addPoint(e.clientX)
     setDragging(true)
   }
 
   const handleMove = (e: any) => {
-    if (dragging) handleGradient(currentColor, getHandleValue(e, barSize))
+    if (!barRef.current) return
+    if (dragging)
+      handleGradient(
+        currentColor,
+        getHandleValue(e.clientX, barRef.current, barSize)
+      )
   }
-
-  // const handleKeyboard = (e: any) => {
-  //   if (isGradient) {
-  //     if (e.keyCode === 8) {
-  //       if (inFocus === 'gpoint') {
-  //         deletePoint()
-  //       }
-  //     }
-  //   }
-  // }
 
   const handleUp = () => {
     stopDragging()
@@ -160,13 +150,15 @@ const GradientBar = () => {
 
   useEffect(() => {
     window.addEventListener('mouseup', handleUp)
+    window.addEventListener('mousemove', handleMove)
     // window?.addEventListener('keydown', handleKeyboard)
 
     return () => {
       window.removeEventListener('mouseup', handleUp)
+      window.removeEventListener('mousemove', handleMove)
       // window?.removeEventListener('keydown', handleKeyboard)
     }
-  })
+  }, [dragging])
 
   return (
     <div
@@ -187,7 +179,7 @@ const GradientBar = () => {
           backgroundImage: force90degLinear(value),
         }}
         onMouseDown={(e) => handleDown(e)}
-        onMouseMove={(e) => handleMove(e)}
+        ref={barRef}
         id={`rbgcp-gradient-bar-canvas${pickerIdSuffix}`}
         // className="rbgcp-gradient-bar-canvas"
       />

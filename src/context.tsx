@@ -167,7 +167,7 @@ export type PickerContextProps = {
   degrees: number
   onChange: (arg0: string) => void
   inputType: string
-  tinyColor: any
+  tinyColor: tinycolor.Instance
   isGradient: boolean
   squareWidth: number
   hideOpacity: boolean
