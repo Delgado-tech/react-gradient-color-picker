@@ -17,19 +17,19 @@
     }
   },
   "scripts": {
-    "build": "yarn build-js",
-    "build-js": "yarn build-js-esm && yarn build-js-cjs && yarn build-js-cjs-package",
+    "build": "pnpm build-js",
+    "build-js": "pnpm build-js-esm && pnpm build-js-cjs && pnpm build-js-cjs-package",
     "build-js-esm": "tsc --project tsconfig.build.json --outDir dist/esm",
     "build-js-cjs": "tsc --project tsconfig.build.json --outDir dist/cjs --module commonjs --moduleResolution node --verbatimModuleSyntax false",
     "build-js-cjs-package": "echo '{\n  \"type\": \"commonjs\"\n}' > dist/cjs/package.json",
     "clean": "rimraf dist",
     "format": "biome format",
     "lint": "biome lint",
-    "prepack": "yarn clean && yarn build",
-    "test": "yarn lint && yarn tsc && yarn format && yarn unit",
+    "prepack": "pnpm clean && pnpm build",
+    "test": "pnpm lint && pnpm tsc && pnpm format && pnpm unit",
     "tsc": "tsc",
     "unit": "vitest",
-    "watch": "yarn build-js-esm --watch & yarn build-js-cjs --watch & node --eval"
+    "watch": "pnpm build-js-esm --watch & pnpm build-js-cjs --watch & node --eval"
   },
   "repository": {
     "type": "git",
