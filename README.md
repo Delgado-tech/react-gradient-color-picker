@@ -2,6 +2,31 @@
 [![Downloads][downloads-image]][downloads-url]
 [![License][license-image]][license-url]
 
+# 🚀 About this Fork
+This fork exists for one simple reason: better UX.
+
+The original version had a pretty limiting behavior — when interacting with the color picker (like dragging the saturation square, hue, opacity sliders, etc.), your mouse had to stay inside the component. If you moved outside, everything just froze until you came back.
+
+With this fork, that’s no longer a problem.
+Now you can drag freely, even outside the component.
+
+I also took the chance to adjust some TypeScript typings along the way.
+
+📦 How to install (select your package manager)
+```bash
+pnpm add https://github.com/Delgado-tech/react-gradient-color-picker.git
+yarn add https://github.com/Delgado-tech/react-gradient-color-picker.git
+npm install https://github.com/Delgado-tech/react-gradient-color-picker.git
+```
+
+> 💡 Note: In this fork, I migrated the project's package manager from Yarn to PNPM
+
+<br/>
+<br/>
+
+
+### 📄 Original README below
+(Just keeping it for reference.)
 
 # react-best-gradient-color-picker
 - Customizable, easy to use color and gradient picker for React.js
